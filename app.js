@@ -1,4 +1,5 @@
 require('dotenv').config();
+const http = require('http');
 
 const Discord = require('discord.js');
 const discord = new Discord.Client();
@@ -41,3 +42,7 @@ const sendBatchMessage = () => {
 };
 
 discord.login(process.env.DISCORD_TOKEN);
+
+http.createServer((req, res) => {
+
+}).listen(process.env.PORT);
