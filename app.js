@@ -32,7 +32,7 @@ discord.on('voiceStateUpdate', (oldMember, newMember) => {
 });
 
 const sendBatchMessage = () => {
-    const message = `${queue.join.join(', ')} have joined; ${queue.leave.join(', ')} have left`;
+    const message = `${queue.join.join(', ')} ${queue.join.length === 1 ? 'has' : 'have'} joined; ${queue.leave.join(', ')}  ${queue.leave.length === 1 ? 'has' : 'have'} left`;
     queue.join = [];
     queue.leave = [];
     telegram.sendMessage(channelId, message)
