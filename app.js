@@ -8,7 +8,6 @@ const telegram = new TelegramBot(process.env.TELEGRAM_TOKEN, {polling: true});
 
 const channelId = process.env.TELEGRAM_CHANNEL_ID;
 
-
 discord.on('voiceStateUpdate', (oldMember, newMember) => {
     const newUserChannel = newMember.voiceChannel;
     const oldUserChannel = oldMember.voiceChannel;
