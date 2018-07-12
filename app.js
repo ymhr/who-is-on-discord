@@ -24,12 +24,10 @@ discord.on('voiceStateUpdate', (oldMember, newMember) => {
         queue.join.push(userName);
         clearTimeout(throttle);
         throttle = setTimeout(sendBatchMessage, 30000);
-        // telegram.sendMessage(channelId, `${userName} is on discord`);
     } else if (typeof newUserChannel === 'undefined') {
         queue.leave.push(userName);
         clearTimeout(throttle);
         throttle = setTimeout(sendBatchMessage, 30000);
-        // telegram.sendMessage(channelId, `${userName} left discord`);
     }
 });
 
