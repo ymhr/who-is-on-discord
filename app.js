@@ -8,7 +8,12 @@ const telegram = new TelegramBot(process.env.TELEGRAM_TOKEN, {polling: true});
 
 const channelId = process.env.TELEGRAM_CHANNEL_ID;
 
-const throttle = null;
+let throttle = null;
+
+const queue = {
+    join: [],
+    leave: []
+};
 
 discord.on('voiceStateUpdate', (oldMember, newMember) => {
     const newUserChannel = newMember.voiceChannel;
@@ -16,11 +21,23 @@ discord.on('voiceStateUpdate', (oldMember, newMember) => {
     const userName = newMember.user.username;
 
     if(typeof oldUserChannel === 'undefined' && typeof newUserChannel !== 'undefined') {
-        console.log('joined', newMember.user.username);
-        telegram.sendMessage(channelId, `${userName} is on discord`);
+        queue.join.push(userName);
+        clearTimeout(throttle);
+        throttle = setTimeout(sendBatchMessage, 30000);
+        // telegram.sendMessage(channelId, `${userName} is on discord`);
     } else if (typeof newUserChannel === 'undefined') {
-        telegram.sendMessage(channelId, `${userName} left discord`);
+        queue.leave.push(userName);
+        clearTimeout(throttle);
+        throttle = setTimeout(sendBatchMessage, 30000);
+        // telegram.sendMessage(channelId, `${userName} left discord`);
     }
 });
+
+const sendBatchMessage = () => {
+    const message = `${queue.join.join(', ')} have joined; ${queue.leave.join(', ')} have left`;
+    queue.join = [];
+    queue.leave = [];
+    telegram.sendMessage(channelId, message)
+};
 
 discord.login(process.env.DISCORD_TOKEN);
