@@ -4,7 +4,7 @@ const Discord = require('discord.js');
 const discord = new Discord.Client();
 
 const TelegramBot = require('node-telegram-bot-api');
-const telegram = new TelegramBot(process.env.TELEGRAM_TOKEN, {polling: true});
+const telegram = new TelegramBot(process.env.TELEGRAM_TOKEN);
 
 const channelId = process.env.TELEGRAM_CHANNEL_ID;
 
