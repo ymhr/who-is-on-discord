@@ -1,0 +1,7 @@
+{
+    "env": {
+        "TELEGRAM_TOKEN": "@telegram_token",
+        "DISCORD_TOKEN": "@discord_token",
+        "TELEGRAM_CHANNEL_ID": "@telegram_channel_id"
+    }
+}

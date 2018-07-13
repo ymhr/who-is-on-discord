@@ -7,7 +7,7 @@ const discord = new Discord.Client();
 const TelegramBot = require('node-telegram-bot-api');
 const telegram = new TelegramBot(process.env.TELEGRAM_TOKEN);
 
-const channelId = process.env.TELEGRAM_CHANNEL_ID;
+const channelId = Math.sign(process.env.TELEGRAM_CHANNEL_ID) === 1 ? -process.env.TELEGRAM_CHANNEL_ID : process.env.TELEGRAM_CHANNEL_ID;
 
 let throttle = null;
 
