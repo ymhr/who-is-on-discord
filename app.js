@@ -14,23 +14,23 @@ const queue = {
     leave: new Set()
 };
 
-discord.on('voiceStateUpdate', (oldMember, newMember) => {
+const onVoiceStateUpdate = (oldMember, newMember) => {
     const newUserChannel = newMember.voiceChannel;
     const oldUserChannel = oldMember.voiceChannel;
     const userName = newMember.user.username;
 
     if(typeof oldUserChannel === 'undefined' && typeof newUserChannel !== 'undefined') {
-        console.log('user joined');
+        console.log(`user ${userName} joined`);
         queue.join.add(userName);
         clearTimeout(throttle);
         throttle = setTimeout(sendBatchMessage, 30000);
     } else if (typeof newUserChannel === 'undefined') {
-        console.log('user left');
+        console.log(`user ${userName} left`);
         queue.leave.add(userName);
         clearTimeout(throttle);
         throttle = setTimeout(sendBatchMessage, 30000);
     }
-});
+};
 
 telegram.onText(/#spoiler/, (msg) => {
     const chatId = msg.chat.id;
@@ -53,6 +53,7 @@ const sendBatchMessage = () => {
     telegram.sendMessage(channelId, message)
 };
 
+discord.on('voiceStateUpdate', onVoiceStateUpdate);
 discord.login(process.env.DISCORD_TOKEN);
 
 if (process.env.NODE_ENV === 'production') {
@@ -60,3 +61,9 @@ if (process.env.NODE_ENV === 'production') {
 		res.end('Nothing to see here')
 	}).listen(process.env.PORT || 80);
 }
+
+module.exports = {
+    queue,
+    onVoiceStateUpdate,
+    sendBatchMessage
+};
