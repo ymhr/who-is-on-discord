@@ -45,6 +45,7 @@ describe('discord voice channel listener', () => {
     expect(mockDiscordOn).toHaveBeenCalledTimes(1);
     expect(eventArg).toBe('voiceStateUpdate')
     expect(typeof callbackArg).toBe('function')
+    
   });
 
 });

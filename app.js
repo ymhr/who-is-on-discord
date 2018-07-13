@@ -2,13 +2,9 @@ require('dotenv').config();
 const http = require('http');
 const Discord = require('discord.js');
 const TelegramBot = require('node-telegram-bot-api');
-<<<<<<< HEAD
 const telegram = new TelegramBot(process.env.TELEGRAM_TOKEN, {polling: true});
-=======
->>>>>>> Add basic Discord client tests
 
 const discord = new Discord.Client();
-const telegram = new TelegramBot(process.env.TELEGRAM_TOKEN);
 const channelId = Math.sign(process.env.TELEGRAM_CHANNEL_ID) === 1 ? -process.env.TELEGRAM_CHANNEL_ID : process.env.TELEGRAM_CHANNEL_ID;
 
 let throttle = null;
@@ -59,6 +55,8 @@ const sendBatchMessage = () => {
 
 discord.login(process.env.DISCORD_TOKEN);
 
-http.createServer((req, res) => {
-    res.end('Nothing to see here')
-}).listen(process.env.PORT);
+if (process.env.NODE_ENV === 'production') {
+    http.createServer((req, res) => {
+		res.end('Nothing to see here')
+	}).listen(process.env.PORT || 80);
+}
