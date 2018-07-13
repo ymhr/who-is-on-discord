@@ -22,10 +22,12 @@ discord.on('voiceStateUpdate', (oldMember, newMember) => {
     const userName = newMember.user.username;
 
     if(typeof oldUserChannel === 'undefined' && typeof newUserChannel !== 'undefined') {
+        console.log('user joined');
         queue.join.add(userName);
         clearTimeout(throttle);
         throttle = setTimeout(sendBatchMessage, 30000);
     } else if (typeof newUserChannel === 'undefined') {
+        console.log('user left');
         queue.leave.add(userName);
         clearTimeout(throttle);
         throttle = setTimeout(sendBatchMessage, 30000);
