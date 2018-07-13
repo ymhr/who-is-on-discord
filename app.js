@@ -23,12 +23,12 @@ const onVoiceStateUpdate = (oldMember, newMember) => {
         console.log(`user ${userName} joined`);
         queue.join.add(userName);
         clearTimeout(throttle);
-        throttle = setTimeout(sendBatchMessage, 30000);
+        throttle = setTimeout(messaging.sendBatchMessage, 30000);
     } else if (typeof newUserChannel === 'undefined') {
         console.log(`user ${userName} left`);
         queue.leave.add(userName);
         clearTimeout(throttle);
-        throttle = setTimeout(sendBatchMessage, 30000);
+        throttle = setTimeout(messaging.sendBatchMessage, 30000);
     }
 };
 
@@ -40,17 +40,19 @@ telegram.onText(/#spoiler/, (msg) => {
 telegram.onText(/#downwithjames/, msg => {
     const chatId = msg.chat.id;
     telegram.sendPhoto(chatId, 'https://imgflip.com/i/2dyxar');
-})
+});
 
-const sendBatchMessage = () => {
-    const join = Array.from(queue.join);
-    const leave = Array.from(queue.leave);
-    const joinMessage = join.length ? `${join.join(', ')} ${join.length === 1 ? 'has' : 'have'} joined` : '';
-    const leaveMessage = leave.length ? `${leave.join(', ')} ${leave.length === 1 ? 'has' : 'have'} left` : '';
-    const message = [joinMessage, leaveMessage].join(joinMessage.length && leaveMessage.length ? '; ' : '');
-    queue.join.clear();
-    queue.leave.clear();
-    telegram.sendMessage(channelId, message)
+const messaging = {
+    sendBatchMessage: () => {
+        const join = Array.from(queue.join);
+		const leave = Array.from(queue.leave);
+		const joinMessage = join.length ? `${join.join(', ')} ${join.length === 1 ? 'has' : 'have'} joined` : '';
+		const leaveMessage = leave.length ? `${leave.join(', ')} ${leave.length === 1 ? 'has' : 'have'} left` : '';
+		const message = [joinMessage, leaveMessage].join(joinMessage.length && leaveMessage.length ? '; ' : '');
+		queue.join.clear();
+		queue.leave.clear();
+		telegram.sendMessage(channelId, message);
+    }
 };
 
 discord.on('voiceStateUpdate', onVoiceStateUpdate);
@@ -65,5 +67,5 @@ if (process.env.NODE_ENV === 'production') {
 module.exports = {
     queue,
     onVoiceStateUpdate,
-    sendBatchMessage
+    messaging
 };
