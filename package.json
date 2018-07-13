@@ -4,7 +4,7 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "./node_modules/jest/bin/jest.js *.test.js",
     "start": "node app.js",
     "deploy": "now --dotenv --public && now alias && now rm who-is-on-discord --safe --yes"
   },
@@ -15,5 +15,8 @@
     "discord.js": "^11.3.2",
     "dotenv": "^6.0.0",
     "node-telegram-bot-api": "^0.30.0"
+  },
+  "devDependencies": {
+    "jest": "^23.4.1"
   }
 }
