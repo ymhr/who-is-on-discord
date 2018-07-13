@@ -35,8 +35,10 @@ discord.on('voiceStateUpdate', (oldMember, newMember) => {
 });
 
 const sendBatchMessage = () => {
-    const joinMessage = queue.join.length ? `${queue.join.join(', ')} ${queue.join.length === 1 ? 'has' : 'have'} joined` : '';
-    const leaveMessage = queue.leave.length ? `${queue.leave.join(', ')} ${queue.leave.length === 1 ? 'has' : 'have'} left` : '';
+    const join = Array.from(queue.join);
+    const leave = Array.from(queue.leave);
+    const joinMessage = join.length ? `${join.join(', ')} ${join.length === 1 ? 'has' : 'have'} joined` : '';
+    const leaveMessage = leave.length ? `${leave.join(', ')} ${leave.length === 1 ? 'has' : 'have'} left` : '';
     const message = [joinMessage, leaveMessage].join('; ');
     queue.join.clear();
     queue.leave.clear();

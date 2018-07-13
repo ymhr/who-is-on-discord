@@ -1,11 +1,12 @@
 {
-  "name": "who-is-online",
+  "name": "who-is-on-discord",
   "version": "1.0.0",
   "description": "",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node app.js"
+    "start": "node app.js",
+    "deploy": "now --dotenv --public && now alias && now rm who-is-on-discord --safe --yes"
   },
   "keywords": [],
   "author": "",
