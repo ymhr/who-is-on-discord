@@ -57,4 +57,6 @@ const sendBatchMessage = () => {
 
 discord.login(process.env.DISCORD_TOKEN);
 
-http.createServer((req, res) => {}).listen(process.env.PORT);
+http.createServer((req, res) => {
+    res.end('Nothing to see here')
+}).listen(process.env.PORT);
