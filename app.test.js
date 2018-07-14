@@ -1,5 +1,3 @@
-const Discord = require('discord.js')
-
 jest.useFakeTimers();
 
 const mockDiscordLogin = jest.fn();
@@ -11,7 +9,7 @@ jest.mock('discord.js', () => {
         login: mockDiscordLogin,
         on: mockDiscordOn,
         emit: () => this.on()
-      }
+      };
     })
   };
 });
@@ -21,8 +19,8 @@ jest.mock('node-telegram-bot-api', () => {
 		return {
 			sendMessage: mockTelegramSend,
 			onText: () => {}
-		}
-	})
+		};
+	});
 });
 
 const DISCORD_TOKEN = 'helpiamtrappedinthiscomputer';
@@ -120,8 +118,8 @@ describe('discord voice channel listener', () => {
     
     expect(mockDiscordLogin).toHaveBeenCalledTimes(1);
     expect(mockDiscordOn).toHaveBeenCalledTimes(1);
-    expect(eventArg).toBe('voiceStateUpdate')
-    expect(typeof callbackArg).toBe('function')
+    expect(eventArg).toBe('voiceStateUpdate');
+    expect(typeof callbackArg).toBe('function');
 
   });
 

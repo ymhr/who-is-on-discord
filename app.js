@@ -19,7 +19,7 @@ const onVoiceStateUpdate = (oldMember, newMember) => {
     const oldUserChannel = oldMember.voiceChannel;
     const userName = newMember.user.username;
 
-    if(typeof oldUserChannel === 'undefined' && typeof newUserChannel !== 'undefined') {
+    if (typeof oldUserChannel === 'undefined' && typeof newUserChannel !== 'undefined') {
         console.log(`user ${userName} joined`);
         queue.join.add(userName);
         clearTimeout(throttle);
@@ -31,6 +31,16 @@ const onVoiceStateUpdate = (oldMember, newMember) => {
         throttle = setTimeout(messaging.sendBatchMessage, 30000);
     }
 };
+
+telegram.onText(/#spoiler/, (msg) => {
+    const chatId = msg.chat.id;
+    telegram.sendPhoto(chatId, 'https://imgflip.com/i/2dywxh');
+});
+
+telegram.onText(/#downwithjames/, (msg) => {
+    const chatId = msg.chat.id;
+    telegram.sendPhoto(chatId, 'https://imgflip.com/i/2dyxar');
+});
 
 const messaging = {
     sendBatchMessage: () => {
@@ -45,22 +55,12 @@ const messaging = {
     }
 };
 
-telegram.onText(/#spoiler/, (msg) => {
-    const chatId = msg.chat.id;
-    telegram.sendPhoto(chatId, 'https://imgflip.com/i/2dywxh');
-});
-
-telegram.onText(/#downwithjames/, msg => {
-    const chatId = msg.chat.id;
-    telegram.sendPhoto(chatId, 'https://imgflip.com/i/2dyxar');
-});
-
 discord.on('voiceStateUpdate', onVoiceStateUpdate);
 discord.login(process.env.DISCORD_TOKEN);
 
 if (process.env.NODE_ENV === 'production') {
     http.createServer((req, res) => {
-		res.end('Nothing to see here')
+		res.end('Nothing to see here');
 	}).listen(process.env.PORT || 80);
 }
 

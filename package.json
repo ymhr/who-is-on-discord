@@ -6,6 +6,7 @@
   "scripts": {
     "test": "./node_modules/jest/bin/jest.js *.test.js",
     "test:dev": "./node_modules/jest/bin/jest.js *.test.js --watch",
+    "lint": "eslint *.js",
     "start": "node app.js",
     "deploy": "now --dotenv --public && now alias && now rm who-is-on-discord --safe --yes"
   },
@@ -18,6 +19,7 @@
     "node-telegram-bot-api": "^0.30.0"
   },
   "devDependencies": {
+    "eslint": "^5.1.0",
     "jest": "^23.4.1"
   }
 }
