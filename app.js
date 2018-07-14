@@ -32,16 +32,6 @@ const onVoiceStateUpdate = (oldMember, newMember) => {
     }
 };
 
-telegram.onText(/#spoiler/, (msg) => {
-    const chatId = msg.chat.id;
-    telegram.sendPhoto(chatId, 'https://imgflip.com/i/2dywxh');
-});
-
-telegram.onText(/#downwithjames/, msg => {
-    const chatId = msg.chat.id;
-    telegram.sendPhoto(chatId, 'https://imgflip.com/i/2dyxar');
-});
-
 const messaging = {
     sendBatchMessage: () => {
         const join = Array.from(queue.join);
@@ -54,6 +44,16 @@ const messaging = {
 		telegram.sendMessage(channelId, message);
     }
 };
+
+telegram.onText(/#spoiler/, (msg) => {
+    const chatId = msg.chat.id;
+    telegram.sendPhoto(chatId, 'https://imgflip.com/i/2dywxh');
+});
+
+telegram.onText(/#downwithjames/, msg => {
+    const chatId = msg.chat.id;
+    telegram.sendPhoto(chatId, 'https://imgflip.com/i/2dyxar');
+});
 
 discord.on('voiceStateUpdate', onVoiceStateUpdate);
 discord.login(process.env.DISCORD_TOKEN);

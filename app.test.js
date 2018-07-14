@@ -15,12 +15,20 @@ jest.mock('discord.js', () => {
     })
   };
 });
+const mockTelegramSend = jest.fn();
+jest.mock('node-telegram-bot-api', () => {
+	return jest.fn().mockImplementation(() => {
+		return {
+			sendMessage: mockTelegramSend,
+			onText: () => {}
+		}
+	})
+});
 
 const DISCORD_TOKEN = 'helpiamtrappedinthiscomputer';
 const runApp = () => require('./app.js');
 
-describe('discord voice channel listener', () => {
-  const DEFAULT_ENV = Object.assign({}, process.env);
+const DEFAULT_ENV = Object.assign({}, process.env);
   const mockUser = {
     username: 'Pusheen'
   };
@@ -32,23 +40,76 @@ describe('discord voice channel listener', () => {
     user: mockUser
   };
 
-  beforeEach(() => {
-    process.env.DISCORD_TOKEN = DISCORD_TOKEN;
-  });
+describe('sendBatchMessage', () => {
+	beforeEach(() => {
+		process.env.TELEGRAM_CHANNEL_ID = '-1';
+		mockDiscordLogin.mockReset();
+		mockDiscordOn.mockReset();
+		mockTelegramSend.mockReset();
+		// reset module state (i.e. queue)
+		jest.resetModules();
+	});
 
-  afterEach(() => {
-    process.env = DEFAULT_ENV;
-    mockDiscordLogin.mockReset();
+	test('posts a message of users that have joined and left', () => {
+		const { queue, messaging } = runApp();
+		queue.join.add('Pusheen');
+		queue.join.add('Stormy');
+		queue.leave.add('Sloth');
+
+		messaging.sendBatchMessage();
+
+		const expectedMessage = 'Pusheen, Stormy have joined; Sloth has left';
+
+		expect(mockTelegramSend).toHaveBeenCalledTimes(1);
+		expect(mockTelegramSend).toHaveBeenCalledWith('-1', expectedMessage);
+	});
+
+	test('posts a message of users that have left', () => {
+		const { queue, messaging } = runApp();
+		queue.leave.add('Sloth');
+
+		messaging.sendBatchMessage();
+
+		const expectedMessage = 'Sloth has left';
+
+		expect(mockTelegramSend).toHaveBeenCalledTimes(1);
+		expect(mockTelegramSend).toHaveBeenCalledWith('-1', expectedMessage);
+	});
+
+	test('resets the queue', () => {
+		const { queue, messaging } = runApp();
+		expect(queue.join.size).toBe(0);
+		queue.join.add('Pusheen');
+		queue.join.add('Stormy');
+		queue.leave.add('Sloth');
+
+		expect(queue.join.size).toBe(2);
+
+		messaging.sendBatchMessage();
+
+		expect(queue.join.size).toBe(0);
+		expect(queue.leave.size).toBe(0);
+	});
+});
+
+describe('discord voice channel listener', () => {
+  beforeEach(() => {
+		process.env.DISCORD_TOKEN = DISCORD_TOKEN;
+		mockDiscordLogin.mockReset();
     mockDiscordOn.mockReset();
 
     // reset module state (i.e. queue)
     jest.resetModules();
   });
 
+  afterEach(() => {
+    process.env = DEFAULT_ENV;
+  });
+
   test('constructs a client and logs in with env token', () => {
     runApp();
     
-    expect(Discord.Client).toHaveBeenCalledTimes(1);
+    // expect(Discord.Client).toHaveBeenCalledTimes(1); nope
     expect(mockDiscordLogin).toHaveBeenCalledTimes(1);
     expect(mockDiscordLogin).toHaveBeenCalledWith(DISCORD_TOKEN);
   });
@@ -92,7 +153,7 @@ describe('discord voice channel listener', () => {
     });
 
     test('sends a batch message about user activity after 30 seconds', () => {
-      const { onVoiceStateUpdate, sendBatchMessage, messaging } = runApp();
+      const { onVoiceStateUpdate, messaging } = runApp();
       onVoiceStateUpdate(mockNoChannel, mockHasChannel);
 
       expect(setTimeout).toHaveBeenCalledTimes(1);
@@ -101,7 +162,7 @@ describe('discord voice channel listener', () => {
 
     test('resets the batch message delay when receiving continuous user activity', () => {
       const app = runApp();
-      const { onVoiceStateUpdate, sendBatchMessage, messaging } = app;
+      const { onVoiceStateUpdate, messaging } = app;
       const sendBatchMessageSpy = jest
         .spyOn(messaging, 'sendBatchMessage')
         .mockImplementation(() => {});
