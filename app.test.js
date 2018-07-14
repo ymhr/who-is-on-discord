@@ -4,15 +4,15 @@ jest.useFakeTimers();
 const mockDiscordLogin = jest.fn();
 const mockDiscordOn = jest.fn();
 jest.mock('discord.js', () => {
-  return {
-    Client: jest.fn().mockImplementation(() => {
-      return {
-        login: mockDiscordLogin,
-        on: mockDiscordOn,
-        emit: () => this.on()
-      };
-    })
-  };
+	return {
+		Client: jest.fn().mockImplementation(() => {
+			return {
+				login: mockDiscordLogin,
+				on: mockDiscordOn,
+				emit: () => this.on()
+			};
+		})
+	};
 });
 
 // Telegram API mocks
@@ -54,8 +54,8 @@ describe('sendBatchMessage', () => {
 	});
 
 	afterEach(() => {
-    process.env = DEFAULT_ENV;
-  });
+		process.env = DEFAULT_ENV;
+	});
 
 	test('posts a message of users that have joined and left', () => {
 		const { queue, messaging } = runApp();
@@ -100,72 +100,72 @@ describe('sendBatchMessage', () => {
 });
 
 describe('discord voice channel listener', () => {
-  beforeEach(() => {
+	beforeEach(() => {
 		process.env.DISCORD_TOKEN = DISCORD_TOKEN;
 		mockDiscordLogin.mockReset();
-    mockDiscordOn.mockReset();
+		mockDiscordOn.mockReset();
 
-    // reset module state (i.e. queue)
-    jest.resetModules();
-  });
+		// reset module state (i.e. queue)
+		jest.resetModules();
+	});
 
-  afterEach(() => {
-    process.env = DEFAULT_ENV;
-  });
+	afterEach(() => {
+		process.env = DEFAULT_ENV;
+	});
 
-  test('constructs a client and logs in with env token', () => {
-    runApp();
-    
-    // expect(Discord.Client).toHaveBeenCalledTimes(1); nope
-    expect(mockDiscordLogin).toHaveBeenCalledTimes(1);
-    expect(mockDiscordLogin).toHaveBeenCalledWith(DISCORD_TOKEN);
-  });
+	test('constructs a client and logs in with env token', () => {
+		runApp();
+		
+		// expect(Discord.Client).toHaveBeenCalledTimes(1); nope
+		expect(mockDiscordLogin).toHaveBeenCalledTimes(1);
+		expect(mockDiscordLogin).toHaveBeenCalledWith(DISCORD_TOKEN);
+	});
 
-  test('listens to "voiceStateUpdate" event to watch voice channels', () => {
-    runApp();
-    const [eventArg, callbackArg] = mockDiscordOn.mock.calls[0];
-    
-    expect(mockDiscordLogin).toHaveBeenCalledTimes(1);
-    expect(mockDiscordOn).toHaveBeenCalledTimes(1);
-    expect(eventArg).toBe('voiceStateUpdate');
-    expect(typeof callbackArg).toBe('function');
+	test('listens to "voiceStateUpdate" event to watch voice channels', () => {
+		runApp();
+		const [eventArg, callbackArg] = mockDiscordOn.mock.calls[0];
+		
+		expect(mockDiscordLogin).toHaveBeenCalledTimes(1);
+		expect(mockDiscordOn).toHaveBeenCalledTimes(1);
+		expect(eventArg).toBe('voiceStateUpdate');
+		expect(typeof callbackArg).toBe('function');
 
-  });
+	});
 
-  describe('onVoiceStateUpdate', () => {
-    beforeEach(() => {
-      jest.clearAllTimers();
-      setTimeout.mockClear();
-      clearTimeout.mockClear();
-    });
+	describe('onVoiceStateUpdate', () => {
+		beforeEach(() => {
+			jest.clearAllTimers();
+			setTimeout.mockClear();
+			clearTimeout.mockClear();
+		});
 
-    test('adds user to "join" queue when they join any voice channel', () => {
-      const { onVoiceStateUpdate, queue } = runApp();
-      onVoiceStateUpdate(mockNoChannel, mockHasChannel);
+		test('adds user to "join" queue when they join any voice channel', () => {
+			const { onVoiceStateUpdate, queue } = runApp();
+			onVoiceStateUpdate(mockNoChannel, mockHasChannel);
 
-      expectQueueSize(queue.join, 1);
-      expectQueueUser(queue.join, mockUser);
+			expectQueueSize(queue.join, 1);
+			expectQueueUser(queue.join, mockUser);
 
-      expectQueueEmpty(queue.leave);
-    });
+			expectQueueEmpty(queue.leave);
+		});
 
-    test('adds user to "leave" queue when they are no longer in a voice channel', () => {
-      const { onVoiceStateUpdate, queue } = runApp();
-      onVoiceStateUpdate(mockHasChannel, mockNoChannel);
+		test('adds user to "leave" queue when they are no longer in a voice channel', () => {
+			const { onVoiceStateUpdate, queue } = runApp();
+			onVoiceStateUpdate(mockHasChannel, mockNoChannel);
 
-      expectQueueSize(queue.leave, 1);
-      expectQueueUser(queue.leave, mockUser);
+			expectQueueSize(queue.leave, 1);
+			expectQueueUser(queue.leave, mockUser);
 
-      expectQueueEmpty(queue.join);
-    });
+			expectQueueEmpty(queue.join);
+		});
 
-    test('sends a batch message about user activity after 30 seconds', () => {
+		test('sends a batch message about user activity after 30 seconds', () => {
 			const { onVoiceStateUpdate, messaging } = runApp();
 			const sendBatchMessageSpy = jest
-        .spyOn(messaging, 'sendBatchMessage')
+				.spyOn(messaging, 'sendBatchMessage')
 				.mockImplementation(() => {});
 
-      onVoiceStateUpdate(mockNoChannel, mockHasChannel);
+			onVoiceStateUpdate(mockNoChannel, mockHasChannel);
 
 			jest.advanceTimersByTime(15000);
 			expect(sendBatchMessageSpy).not.toHaveBeenCalled();
@@ -174,43 +174,43 @@ describe('discord voice channel listener', () => {
 			expect(sendBatchMessageSpy).toHaveBeenCalledTimes(1);
 
 			sendBatchMessageSpy.mockRestore();
-    });
+		});
 
-    test('resets the batch message delay when receiving continuous user activity', () => {
-      const app = runApp();
-      const { onVoiceStateUpdate, messaging } = app;
-      const sendBatchMessageSpy = jest
-        .spyOn(messaging, 'sendBatchMessage')
-        .mockImplementation(() => {});
-      
-      onVoiceStateUpdate(mockNoChannel, mockHasChannel);
+		test('resets the batch message delay when receiving continuous user activity', () => {
+			const app = runApp();
+			const { onVoiceStateUpdate, messaging } = app;
+			const sendBatchMessageSpy = jest
+				.spyOn(messaging, 'sendBatchMessage')
+				.mockImplementation(() => {});
+			
+			onVoiceStateUpdate(mockNoChannel, mockHasChannel);
 
-      // First timer/debounce is set, let's say half the timer elapses
-      jest.advanceTimersByTime(15000);
+			// First timer/debounce is set, let's say half the timer elapses
+			jest.advanceTimersByTime(15000);
 
-      // Some continuous activity, meaning two further timers/debounce
-      onVoiceStateUpdate(mockHasChannel, mockNoChannel);
-      onVoiceStateUpdate(mockNoChannel, mockHasChannel);
+			// Some continuous activity, meaning two further timers/debounce
+			onVoiceStateUpdate(mockHasChannel, mockNoChannel);
+			onVoiceStateUpdate(mockNoChannel, mockHasChannel);
 
-      // Only one timer, the final timer, will complete
-      jest.runAllTimers();
-      expect(sendBatchMessageSpy).toHaveBeenCalledTimes(1);
-      sendBatchMessageSpy.mockRestore();
-    });
-  });
+			// Only one timer, the final timer, will complete
+			jest.runAllTimers();
+			expect(sendBatchMessageSpy).toHaveBeenCalledTimes(1);
+			sendBatchMessageSpy.mockRestore();
+		});
+	});
 
 });
 
 // Helpers
 
 function expectQueueSize (queue, size) {
-  expect(queue.size).toBe(size);
+	expect(queue.size).toBe(size);
 }
 
 function expectQueueEmpty(queue) {
-  expect(queue.size).toBe(0);
+	expect(queue.size).toBe(0);
 }
 
 function expectQueueUser(queue, user) {
-  expect(queue.has(user.username)).toBe(true);
+	expect(queue.has(user.username)).toBe(true);
 }
