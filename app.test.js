@@ -1,5 +1,6 @@
 jest.useFakeTimers();
 
+// Discord.js mocks
 const mockDiscordLogin = jest.fn();
 const mockDiscordOn = jest.fn();
 jest.mock('discord.js', () => {
@@ -13,6 +14,8 @@ jest.mock('discord.js', () => {
     })
   };
 });
+
+// Telegram API mocks
 const mockTelegramSend = jest.fn();
 jest.mock('node-telegram-bot-api', () => {
 	return jest.fn().mockImplementation(() => {
@@ -27,26 +30,32 @@ const DISCORD_TOKEN = 'helpiamtrappedinthiscomputer';
 const runApp = () => require('./app.js');
 
 const DEFAULT_ENV = Object.assign({}, process.env);
-  const mockUser = {
-    username: 'Pusheen'
-  };
-  const mockHasChannel = {
-    user: mockUser,
-    voiceChannel: '#pusheens-parlour'
-  };
-  const mockNoChannel = {
-    user: mockUser
-  };
+const mockUser = {
+	username: 'Pusheen'
+};
+const mockHasChannel = {
+	user: mockUser,
+	voiceChannel: '#pusheens-parlour'
+};
+const mockNoChannel = {
+	user: mockUser
+};
 
 describe('sendBatchMessage', () => {
 	beforeEach(() => {
 		process.env.TELEGRAM_CHANNEL_ID = '-1';
+
 		mockDiscordLogin.mockReset();
 		mockDiscordOn.mockReset();
 		mockTelegramSend.mockReset();
+		
 		// reset module state (i.e. queue)
 		jest.resetModules();
 	});
+
+	afterEach(() => {
+    process.env = DEFAULT_ENV;
+  });
 
 	test('posts a message of users that have joined and left', () => {
 		const { queue, messaging } = runApp();
@@ -151,11 +160,20 @@ describe('discord voice channel listener', () => {
     });
 
     test('sends a batch message about user activity after 30 seconds', () => {
-      const { onVoiceStateUpdate, messaging } = runApp();
+			const { onVoiceStateUpdate, messaging } = runApp();
+			const sendBatchMessageSpy = jest
+        .spyOn(messaging, 'sendBatchMessage')
+				.mockImplementation(() => {});
+
       onVoiceStateUpdate(mockNoChannel, mockHasChannel);
 
-      expect(setTimeout).toHaveBeenCalledTimes(1);
-      expect(setTimeout).toHaveBeenCalledWith(messaging.sendBatchMessage, 30000);
+			jest.advanceTimersByTime(15000);
+			expect(sendBatchMessageSpy).not.toHaveBeenCalled();
+
+			jest.runAllTimers();
+			expect(sendBatchMessageSpy).toHaveBeenCalledTimes(1);
+
+			sendBatchMessageSpy.mockRestore();
     });
 
     test('resets the batch message delay when receiving continuous user activity', () => {
@@ -167,21 +185,12 @@ describe('discord voice channel listener', () => {
       
       onVoiceStateUpdate(mockNoChannel, mockHasChannel);
 
-      // First timer is set
-      expect(setTimeout).toHaveBeenCalledTimes(1);
-      expect(setTimeout).toHaveBeenCalledWith(sendBatchMessageSpy, 30000);
-      // Let's say half the timer elapses
+      // First timer/debounce is set, let's say half the timer elapses
       jest.advanceTimersByTime(15000);
 
-      // Some continuous activity
+      // Some continuous activity, meaning two further timers/debounce
       onVoiceStateUpdate(mockHasChannel, mockNoChannel);
       onVoiceStateUpdate(mockNoChannel, mockHasChannel);
-
-      // Two new timers set
-      expect(setTimeout).toHaveBeenCalledTimes(3);
-      expect(clearTimeout).toHaveBeenCalledTimes(3);
-      expect(setTimeout).toHaveBeenNthCalledWith(2, sendBatchMessageSpy, 30000);
-      expect(setTimeout).toHaveBeenNthCalledWith(3, sendBatchMessageSpy, 30000);
 
       // Only one timer, the final timer, will complete
       jest.runAllTimers();

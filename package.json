@@ -4,7 +4,7 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "test": "./node_modules/jest/bin/jest.js *.test.js",
+    "test": "npm run lint && ./node_modules/jest/bin/jest.js *.test.js",
     "test:dev": "./node_modules/jest/bin/jest.js *.test.js --watch",
     "lint": "eslint *.js",
     "start": "node app.js",
