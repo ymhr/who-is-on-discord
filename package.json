@@ -4,7 +4,9 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "npm run lint && ./node_modules/jest/bin/jest.js *.test.js",
+    "test:dev": "./node_modules/jest/bin/jest.js *.test.js --watch",
+    "lint": "eslint *.js",
     "start": "node app.js",
     "deploy": "now --dotenv --public && now alias && now rm who-is-on-discord --safe --yes"
   },
@@ -15,5 +17,9 @@
     "discord.js": "^11.3.2",
     "dotenv": "^6.0.0",
     "node-telegram-bot-api": "^0.30.0"
+  },
+  "devDependencies": {
+    "eslint": "^5.1.0",
+    "jest": "^23.4.1"
   }
 }
