@@ -45,13 +45,13 @@ telegram.onText(/#downwithjames/, (msg) => {
 const messaging = {
 	sendBatchMessage: () => {
 		const join = Array.from(queue.join);
-		const leave = Array.from(queue.leave);
+		// const leave = Array.from(queue.leave);
 		const joinMessage = join.length ? `${join.join(', ')} ${join.length === 1 ? 'has' : 'have'} joined` : '';
-		const leaveMessage = leave.length ? `${leave.join(', ')} ${leave.length === 1 ? 'has' : 'have'} left` : '';
-		const message = [joinMessage, leaveMessage].join(joinMessage.length && leaveMessage.length ? '; ' : '');
+		// const leaveMessage = leave.length ? `${leave.join(', ')} ${leave.length === 1 ? 'has' : 'have'} left` : '';
+		// const message = [joinMessage, leaveMessage].join(joinMessage.length && leaveMessage.length ? '; ' : '');
 		queue.join.clear();
 		queue.leave.clear();
-		telegram.sendMessage(channelId, message);
+		telegram.sendMessage(channelId, joinMessage);
 	}
 };
 
